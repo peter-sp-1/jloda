@@ -4,8 +4,8 @@ import Searchbar from "./Search";
 const DownloadPage: React.FC = () => {
   const [videos, setVideos] = useState<any[]>([]);
   const [noResults, setNoResults] = useState(false);
-  const apiKey = "AIzaSyC5S4s6DW7UJ2ydeQDYOtasidIE1RDE46s";
-  const channelId = "UCxssq4RFmPSgUzyjpIZBjSQ";
+  const apiKey = "";
+  const channelId = "";
 
   useEffect(() => {
     fetchVideos();
