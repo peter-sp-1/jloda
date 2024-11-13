@@ -14,7 +14,7 @@ const Searchbar: React.FC<SearchbarProps> = ({ onSearch }) => {
     >
       <input
         id="search-bar"
-        placeholder="your keyword here"
+        placeholder="Search or Input url"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         className="px-4 py-1.5 w-full h-10 text-black placeholder-gray-500 rounded-full bg-white"
