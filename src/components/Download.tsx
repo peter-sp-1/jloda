@@ -8,8 +8,8 @@ const DownloadPage: React.FC = () => {
   const [status, setStatus] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [selectedFormat, setSelectedFormat] = useState("mp4");  // Default format is "mp4"
-  const apiKey = "AIzaSyC5S4s6DW7UJ2ydeQDYOtasidIE1RDE46s";  
-  const channelId = "UCxssq4RFmPSgUzyjpIZBjSQ";
+  const apiKey = import.meta.env.VITE_API_KEY;  
+  const channelId = import.meta.env.VITE_APP_CHANNEL_ID;
 
   useEffect(() => {
     fetchVideos();
@@ -39,7 +39,7 @@ const DownloadPage: React.FC = () => {
     try {
       setStatus("Starting download...");
       const response = await axios.post(
-        "https://d182-105-112-125-236.ngrok-free.app/download", 
+        "https://70e9-102-91-102-175.ngrok-free.app/download", 
         { url: videoUrl, format: selectedFormat }, 
         { responseType: "blob" }
       );

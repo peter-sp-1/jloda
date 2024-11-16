@@ -24,6 +24,4 @@ dist-ssr
 *.sw?
 jloda
 .ENV
-
-apiKey = "AIzaSyC5S4s6DW7UJ2ydeQDYOtasidIE1RDE46s";
-channelId = "UCxssq4RFmPSgUzyjpIZBjSQ";
+.env
