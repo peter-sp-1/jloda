@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import Searchbar from "./Search";
 
 const DownloadPage: React.FC = () => {
@@ -9,8 +8,11 @@ const DownloadPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [selectedFormat, setSelectedFormat] = useState("mp4");
   const [cache, setCache] = useState<{ [key: string]: any[] }>({});
-  const apiKey = "AIzaSyC5S4s6DW7UJ2ydeQDYOtasidIE1RDE46s";
-  const channelId = "UCxssq4RFmPSgUzyjpIZBjSQ";
+  const apiKey = import.meta.env.VITE_YOUTUBE_API_KEY;
+  const channelId = import.meta.env.VITE_APP_CHANNEL_ID;
+  
+  // Configure your ngrok URL here
+  const NGROK_URL = "https://025d-105-112-231-67.ngrok-free.app";
 
   useEffect(() => {
     fetchVideos();
@@ -28,7 +30,7 @@ const DownloadPage: React.FC = () => {
       const requestUrl = query
         ? `https://www.googleapis.com/youtube/v3/search?key=${apiKey}&q=${encodeURIComponent(query)}&part=snippet&type=video&maxResults=10`
         : `https://www.googleapis.com/youtube/v3/search?key=${apiKey}&channelId=${channelId}&part=snippet,id&order=date&maxResults=10`;
-
+        
       const response = await fetch(requestUrl);
       const data = await response.json();
 
@@ -49,31 +51,57 @@ const DownloadPage: React.FC = () => {
   const handleDownload = async (videoUrl: string): Promise<void> => {
     try {
       setStatus("Starting download...");
-      const response = await axios.post(
-        "https://025d-105-112-231-67.ngrok-free.app/download",
-        { url: videoUrl, format: selectedFormat },
-        { responseType: "blob" }
-      );
+      
+      const response = await fetch(`${NGROK_URL}/download`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          url: videoUrl,
+          format: selectedFormat 
+        })
+      });
 
-      // Prepare and trigger download
-      const downloadLink = document.createElement("a");
-      const url = window.URL.createObjectURL(response.data);
-      downloadLink.href = url;
-      downloadLink.setAttribute("download", `downloaded_video.${selectedFormat}`);
-      document.body.appendChild(downloadLink);
-      downloadLink.click();
-      document.body.removeChild(downloadLink);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Download failed');
+      }
+
+      // Get filename from Content-Disposition header if available
+      const contentDisposition = response.headers.get('Content-Disposition');
+      let filename = `downloaded_video.${selectedFormat}`;
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+        if (filenameMatch && filenameMatch[1]) {
+          filename = filenameMatch[1].replace(/['"]/g, '');
+        }
+      }
+
+      // Handle the file download
+      const blob = await response.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = downloadUrl;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(downloadUrl);
+      document.body.removeChild(a);
 
       setStatus("Download successful!");
     } catch (error: any) {
-      setStatus("Download failed: " + (error.response?.data?.error || error.message));
+      console.error('Download error:', error);
+      setStatus(`Download failed: ${error.message}`);
+    } finally {
+      setTimeout(() => setStatus(""), 3000);
     }
   };
 
   return (
     <div className="min-h-screen flex flex-col items-center bg-black relative overflow-hidden">
       {/* Search and Format Selection Section */}
-      <div className="fixed top-0 left-0 w-full bg-black py-6 shadow-lg">
+      <div className="fixed top-0 left-0 w-full bg-black py-6 shadow-lg z-10">
         <div className="max-w-screen-lg mx-auto flex items-center">
           {/* Searchbar */}
           <div className="flex-1">
@@ -97,10 +125,16 @@ const DownloadPage: React.FC = () => {
             </div>
           </div>
         </div>
+        {/* Status Message */}
+        {status && (
+          <div className="mt-2 text-center text-sm bg-black text-white py-2 rounded">
+            {status}
+          </div>
+        )}
       </div>
 
       {/* Content Section */}
-      <div className="mt-4 w-full px-4">
+      <div className="mt-24 w-full px-4"> {/* Increased top margin to account for fixed header */}
         <div className="max-w-screen-lg mx-auto">
           {/* "It's your video" Section */}
           <h1 className="font-bold text-white text-center mt-4">
@@ -129,21 +163,15 @@ const DownloadPage: React.FC = () => {
                     allowFullScreen
                     className="rounded-lg"
                   ></iframe>
-                  <p className="text-white mt-2">{video.snippet.title}</p>
+                  <p className="text-white mt-2 line-clamp-2">{video.snippet.title}</p>
                   <button
                     onClick={() => handleDownload(`https://www.youtube.com/watch?v=${video.id.videoId}`)}
-                    className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg"
+                    className="mt-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                   >
                     Download
                   </button>
                 </div>
               ))}
-            </div>
-          )}
-
-          {status && (
-            <div className="text-white mt-4 text-center">
-              <p>{status}</p>
             </div>
           )}
         </div>
