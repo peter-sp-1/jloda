@@ -25,3 +25,10 @@ dist-ssr
 jloda
 .ENV
 .env
+
+
+ {status && (
+          <div className="text-white mt-4">
+            <p>{status}</p>
+          </div>
+        )}
