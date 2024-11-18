@@ -12,7 +12,7 @@ const DownloadPage: React.FC = () => {
   const channelId = import.meta.env.VITE_APP_CHANNEL_ID;
   
 
-  const NGROK_URL = "https://8191-102-89-32-248.ngrok-free.app";
+  const NGROK_URL = "https://jloda-313c7c5b8809.herokuapp.com";
 
   useEffect(() => {
     fetchVideos();
