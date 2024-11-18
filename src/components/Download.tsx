@@ -11,8 +11,8 @@ const DownloadPage: React.FC = () => {
   const apiKey = import.meta.env.VITE_YOUTUBE_API_KEY;
   const channelId = import.meta.env.VITE_APP_CHANNEL_ID;
   
-  // Configure your ngrok URL here
-  const NGROK_URL = "https://025d-105-112-231-67.ngrok-free.app";
+
+  const NGROK_URL = "https://8191-102-89-32-248.ngrok-free.app";
 
   useEffect(() => {
     fetchVideos();
